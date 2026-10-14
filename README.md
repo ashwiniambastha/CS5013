@@ -6,8 +6,10 @@ follow-ups, and supervision reports.
 
 ## Current progress
 
-Part 1 is complete: Maven project structure and a runnable Java entry point.
-There is no database or desktop interface yet. See [the design roadmap](docs/design-roadmap.md).
+Parts 1 and 2 are complete: Maven structure, a runnable entry point, and versioned
+SQLite storage. Startup creates the five tables without erasing existing data.
+Project entry and the desktop interface are not implemented yet.
+See [the design roadmap](docs/design-roadmap.md) and [Part 2 explanation](docs/part-02-storage.md).
 
 ## Run
 
@@ -18,11 +20,12 @@ mvn package
 java -jar target/student-project-tracker-0.1.0-SNAPSHOT.jar
 ```
 
-Without Maven, verify the initial entry point using a JDK:
+The package includes its SQLite dependency. Run tests with `mvn test`.
+On Windows, persistent data defaults to `%LOCALAPPDATA%/StudentProjectTracker/tracker.db`.
+For an isolated demonstration, run:
 
 ```powershell
-javac --release 17 -d target/classes src/main/java/in/iitm/cs5013/tracker/TrackerApplication.java
-java -cp target/classes in.iitm.cs5013.tracker.TrackerApplication
+java -Dtracker.dataDir=target/demo-data -jar target/student-project-tracker-0.1.0-SNAPSHOT.jar
 ```
 
 The final desktop package will include a Java runtime. Generated databases and

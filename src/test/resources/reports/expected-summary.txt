@@ -1,0 +1,21 @@
+SUPERVISION SUMMARY - 2026-10-14
+Active projects: 2
+Missing-update threshold: more than 14 days
+
+Student A - Graph Theory [P001]
+Latest update: 2026-09-29 - Read the paper
+Next steps: Draft proof
+Next deadline (earliest open task): 2026-10-13
+Open tasks: 1
+  - T001: Submit draft | due 2026-10-13 | OVERDUE
+Pending follow-ups: 1
+  - F001: Send revised proof | requested 2026-10-10 | due 2026-10-14 | DUE_TODAY
+Attention: Missing update (15 days since latest update); Overdue task T001; 1 pending follow-up(s); Follow-up due today F001
+
+Student B - Algebra [P002]
+Latest update: None; project started 2026-10-14
+Next steps: Not recorded
+Next deadline (earliest open task): None
+Open tasks: 0
+Pending follow-ups: 0
+Attention: None

@@ -6,12 +6,15 @@ follow-ups, and supervision reports.
 
 ## Current progress
 
-Parts 1 through 3 are complete: Maven structure, versioned SQLite storage, and
+Parts 1 through 4 are complete: Maven structure, versioned SQLite storage, and
 commands to add/list/complete projects and record/list weekly updates.
 Startup creates the five tables without erasing existing data.
-Tasks, follow-ups, reports and the desktop interface are not implemented yet.
+Tasks and follow-ups can be added, listed and closed independently, with optional
+deadlines and retained history. Status warnings, reports and the desktop interface
+are not implemented yet.
 See [the design roadmap](docs/design-roadmap.md) and [Part 2 explanation](docs/part-02-storage.md).
 For commands and a worked example, read [Part 3](docs/part-03-projects-updates.md).
+For tasks and follow-ups, read [Part 4](docs/part-04-tasks-followups.md).
 
 ## Run
 

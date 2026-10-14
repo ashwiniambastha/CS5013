@@ -69,5 +69,10 @@ class TrackerCommandTest {
         output.getBuffer().setLength(0);
         assertEquals(1, cli.execute("status", "--stale-days", "0"));
         assertEquals("", output.toString());
+        Path reportDirectory = temporary.resolve("exported reports");
+        assertEquals(0, cli.execute("report", "--output", reportDirectory.toString(), "--stale-days", "7"));
+        Path report = reportDirectory.resolve("supervision-summary-2026-10-14.txt");
+        assertTrue(java.nio.file.Files.readString(report).contains("Missing update (13 days since project start)"));
+        assertTrue(output.toString().contains("Saved report:"));
     }
 }

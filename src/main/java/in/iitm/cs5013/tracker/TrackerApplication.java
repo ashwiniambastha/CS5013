@@ -8,6 +8,9 @@ import in.iitm.cs5013.tracker.service.WorkService;
 import in.iitm.cs5013.tracker.repository.SqliteWorkRepository;
 import in.iitm.cs5013.tracker.service.StatusService;
 import in.iitm.cs5013.tracker.report.StatusBoardRenderer;
+import in.iitm.cs5013.tracker.report.TextSummaryRenderer;
+import in.iitm.cs5013.tracker.service.ReportService;
+import java.nio.file.Path;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
@@ -39,6 +42,14 @@ public final class TrackerApplication implements Callable<Integer> {
     void showStatus(@Option(names="--stale-days", defaultValue="14",
                     description="Flag updates older than this many days (positive integer)") int staleDays) throws Exception {
         new StatusBoardRenderer().render(status.board(staleDays), spec.commandLine().getOut());
+    }
+
+    @Command(name="report", description="Save a dated UTF-8 meeting summary; replace the same day's report")
+    void report(@Option(names="--output", description="Output directory; default: reports beside the database") Path directory,
+                @Option(names="--stale-days", defaultValue="14") int staleDays) throws Exception {
+        Path output = new ReportService(status, new TextSummaryRenderer()).generate(
+            directory == null ? AppPaths.reports() : directory, staleDays);
+        spec.commandLine().getOut().println("Saved report: " + output);
     }
 
     @Command(name="project-add", description="Create an active project")

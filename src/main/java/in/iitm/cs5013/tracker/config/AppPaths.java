@@ -6,6 +6,10 @@ import java.nio.file.Path;
 public final class AppPaths {
     private AppPaths() { }
 
+    public static Path reports() {
+        return database().toAbsolutePath().getParent().resolve("reports");
+    }
+
     public static Path database() {
         String override = System.getProperty("tracker.dataDir");
         if (override != null && !override.isBlank()) {

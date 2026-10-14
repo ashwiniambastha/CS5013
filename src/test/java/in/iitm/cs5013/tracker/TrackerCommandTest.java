@@ -5,6 +5,8 @@ import in.iitm.cs5013.tracker.repository.SqliteProjectRepository;
 import in.iitm.cs5013.tracker.service.ProjectService;
 import in.iitm.cs5013.tracker.service.WorkService;
 import in.iitm.cs5013.tracker.service.StatusService;
+import in.iitm.cs5013.tracker.service.ImportService;
+import in.iitm.cs5013.tracker.repository.SqliteImportRepository;
 import in.iitm.cs5013.tracker.repository.SqliteWorkRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
@@ -26,7 +28,8 @@ class TrackerCommandTest {
         var work = new WorkService(new SqliteWorkRepository(database), service,
             Clock.fixed(Instant.parse("2026-10-14T06:00:00Z"), ZoneOffset.UTC));
         var status = new StatusService(service, work, Clock.fixed(Instant.parse("2026-10-14T06:00:00Z"), ZoneOffset.UTC));
-        var cli = new CommandLine(new TrackerApplication(service, work, status));
+        var importer = new ImportService(new SqliteImportRepository(database), Clock.fixed(Instant.parse("2026-10-14T06:00:00Z"), ZoneOffset.UTC));
+        var cli = new CommandLine(new TrackerApplication(service, work, status, importer));
         cli.setErr(new PrintWriter(new StringWriter()));
         assertEquals(0, cli.execute("project-add", "--id", "P001", "--student", "Student A",
             "--title", "Graph Theory", "--start", "2026-10-01"));
@@ -55,7 +58,8 @@ class TrackerCommandTest {
         var work = new WorkService(new SqliteWorkRepository(database), projects, clock);
         projects.add("P001", "Student A", "Study", LocalDate.parse("2026-10-01"));
         work.addTask("T001", "P001", "Submit draft", LocalDate.parse("2026-10-13"));
-        var cli = new CommandLine(new TrackerApplication(projects, work, new StatusService(projects, work, clock)));
+        var cli = new CommandLine(new TrackerApplication(projects, work, new StatusService(projects, work, clock),
+            new ImportService(new SqliteImportRepository(database), clock)));
         var output = new StringWriter();
         cli.setOut(new PrintWriter(output));
         cli.setErr(new PrintWriter(new StringWriter()));
@@ -74,5 +78,14 @@ class TrackerCommandTest {
         Path report = reportDirectory.resolve("supervision-summary-2026-10-14.txt");
         assertTrue(java.nio.file.Files.readString(report).contains("Missing update (13 days since project start)"));
         assertTrue(output.toString().contains("Saved report:"));
+        Path importFile = temporary.resolve("import.csv");
+        java.nio.file.Files.writeString(importFile, "project_id,student_name,project_title,started_on,update_id,update_date,summary,next_steps\n"
+            + "P002,Student B,Algebra,2026-10-01,U002,2026-10-07,Read paper,Draft notes\n");
+        assertEquals(0, cli.execute("import", importFile.toString(), "--dry-run"));
+        assertEquals(1, projects.list(true).size());
+        assertEquals(0, cli.execute("import", importFile.toString()));
+        assertEquals(2, projects.list(true).size());
+        assertEquals(0, cli.execute("import", importFile.toString()));
+        assertEquals(1, projects.updates("P002").size());
     }
 }

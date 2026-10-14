@@ -10,6 +10,9 @@ import in.iitm.cs5013.tracker.service.StatusService;
 import in.iitm.cs5013.tracker.report.StatusBoardRenderer;
 import in.iitm.cs5013.tracker.report.TextSummaryRenderer;
 import in.iitm.cs5013.tracker.service.ReportService;
+import in.iitm.cs5013.tracker.service.ImportService;
+import in.iitm.cs5013.tracker.repository.SqliteImportRepository;
+import picocli.CommandLine.Parameters;
 import java.nio.file.Path;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
@@ -27,11 +30,13 @@ public final class TrackerApplication implements Callable<Integer> {
     private final ProjectService service;
     private final WorkService work;
     private final StatusService status;
+    private final ImportService importer;
     @Spec private CommandSpec spec;
-    public TrackerApplication(ProjectService service, WorkService work, StatusService status) {
+    public TrackerApplication(ProjectService service, WorkService work, StatusService status, ImportService importer) {
         this.service = service;
         this.work = work;
         this.status = status;
+        this.importer = importer;
     }
     public Integer call() throws Exception {
         showStatus(StatusService.DEFAULT_STALE_DAYS);
@@ -42,6 +47,15 @@ public final class TrackerApplication implements Callable<Integer> {
     void showStatus(@Option(names="--stale-days", defaultValue="14",
                     description="Flag updates older than this many days (positive integer)") int staleDays) throws Exception {
         new StatusBoardRenderer().render(status.board(staleDays), spec.commandLine().getOut());
+    }
+
+    @Command(name="import", description="Import project updates from CSV or the first sheet of XLSX")
+    void importFile(@Parameters(index="0", description="Records file (.csv or .xlsx)") Path file,
+                    @Option(names="--dry-run", description="Validate and preview counts without saving") boolean dryRun) throws Exception {
+        var result = importer.importFile(file, dryRun);
+        spec.commandLine().getOut().printf("%s: %d projects, %d updates %s; %d unchanged updates skipped.%n",
+            dryRun ? "Preview" : "Import complete", result.projectsAdded(), result.updatesAdded(),
+            dryRun ? "would be added" : "added", result.updatesSkipped());
     }
 
     @Command(name="report", description="Save a dated UTF-8 meeting summary; replace the same day's report")
@@ -151,7 +165,8 @@ public final class TrackerApplication implements Callable<Integer> {
         var service = new ProjectService(new SqliteProjectRepository(database), clock);
         var work = new WorkService(new SqliteWorkRepository(database), service, clock);
         var status = new StatusService(service, work, clock);
-        var cli = new CommandLine(new TrackerApplication(service, work, status));
+        var importer = new ImportService(new SqliteImportRepository(database), clock);
+        var cli = new CommandLine(new TrackerApplication(service, work, status, importer));
         cli.setExecutionExceptionHandler((exception, command, parseResult) -> {
             command.getErr().println("Error: " + exception.getMessage());
             return 1;

@@ -1,0 +1,4 @@
+project_id,student_name,project_title,started_on,update_id,update_date,summary,next_steps
+P001,Student A,Graph Theory,2026-09-01,U001,2026-10-07,Completed literature review,Draft proof outline
+P001,Student A,Graph Theory,2026-09-01,U002,2026-10-14,Drafted first proof,Review assumptions
+P002,Student B,Algebra,2026-09-01,U003,2026-10-10,Reviewed examples,Prepare presentation

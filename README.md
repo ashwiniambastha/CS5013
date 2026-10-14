@@ -6,19 +6,22 @@ follow-ups, and supervision reports.
 
 ## Current progress
 
-Parts 1 through 6 are complete: Maven structure, versioned SQLite storage, and
+Parts 1 through 7 are complete: Maven structure, versioned SQLite storage, and
 commands to add/list/complete projects and record/list weekly updates.
 Startup creates the five tables without erasing existing data.
 Tasks and follow-ups can be added, listed and closed independently, with optional
 deadlines and retained history. Default startup and `status` show active projects,
 missing updates, classified deadlines and pending follow-ups.
 The `report` command saves a dated UTF-8 supervision summary, replacing the same
-day's file on rerun. Imports and the desktop interface are not implemented yet.
+day's file on rerun. CSV and XLSX imports validate the complete file and save
+projects/updates transactionally; unchanged reimports are skipped. The desktop
+interface is not implemented yet.
 See [the design roadmap](docs/design-roadmap.md) and [Part 2 explanation](docs/part-02-storage.md).
 For commands and a worked example, read [Part 3](docs/part-03-projects-updates.md).
 For tasks and follow-ups, read [Part 4](docs/part-04-tasks-followups.md).
 For the board's date rules, read [Part 5](docs/part-05-status-board.md).
 For saved meeting summaries, read [Part 6](docs/part-06-reports.md).
+For import formats and a template workflow, read [Part 7](docs/part-07-imports.md).
 
 ## Run
 

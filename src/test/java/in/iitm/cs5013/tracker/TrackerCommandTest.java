@@ -4,6 +4,7 @@ import in.iitm.cs5013.tracker.repository.Database;
 import in.iitm.cs5013.tracker.repository.SqliteProjectRepository;
 import in.iitm.cs5013.tracker.service.ProjectService;
 import in.iitm.cs5013.tracker.service.WorkService;
+import in.iitm.cs5013.tracker.service.StatusService;
 import in.iitm.cs5013.tracker.repository.SqliteWorkRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
@@ -24,7 +25,8 @@ class TrackerCommandTest {
             Clock.fixed(Instant.parse("2026-10-14T06:00:00Z"), ZoneOffset.UTC));
         var work = new WorkService(new SqliteWorkRepository(database), service,
             Clock.fixed(Instant.parse("2026-10-14T06:00:00Z"), ZoneOffset.UTC));
-        var cli = new CommandLine(new TrackerApplication(service, work));
+        var status = new StatusService(service, work, Clock.fixed(Instant.parse("2026-10-14T06:00:00Z"), ZoneOffset.UTC));
+        var cli = new CommandLine(new TrackerApplication(service, work, status));
         cli.setErr(new PrintWriter(new StringWriter()));
         assertEquals(0, cli.execute("project-add", "--id", "P001", "--student", "Student A",
             "--title", "Graph Theory", "--start", "2026-10-01"));
@@ -43,5 +45,29 @@ class TrackerCommandTest {
         assertTrue(work.followups("P001", false).isEmpty());
         assertEquals(0, cli.execute("project-complete", "--id", "P001"));
         assertTrue(service.list(false).isEmpty());
+    }
+
+    @Test void defaultBoardAndStatusCommandUseConfiguredOutputAndThreshold() throws Exception {
+        var database = new Database(temporary.resolve("tracker.db"));
+        database.initialize();
+        var clock = Clock.fixed(Instant.parse("2026-10-14T06:00:00Z"), ZoneOffset.UTC);
+        var projects = new ProjectService(new SqliteProjectRepository(database), clock);
+        var work = new WorkService(new SqliteWorkRepository(database), projects, clock);
+        projects.add("P001", "Student A", "Study", LocalDate.parse("2026-10-01"));
+        work.addTask("T001", "P001", "Submit draft", LocalDate.parse("2026-10-13"));
+        var cli = new CommandLine(new TrackerApplication(projects, work, new StatusService(projects, work, clock)));
+        var output = new StringWriter();
+        cli.setOut(new PrintWriter(output));
+        cli.setErr(new PrintWriter(new StringWriter()));
+        cli.setExecutionExceptionHandler((exception, command, result) -> 1);
+        assertEquals(0, cli.execute());
+        assertTrue(output.toString().contains("WITHIN THRESHOLD"));
+        assertTrue(output.toString().contains("OVERDUE"));
+        output.getBuffer().setLength(0);
+        assertEquals(0, cli.execute("status", "--stale-days", "7"));
+        assertTrue(output.toString().contains("MISSING UPDATE"));
+        output.getBuffer().setLength(0);
+        assertEquals(1, cli.execute("status", "--stale-days", "0"));
+        assertEquals("", output.toString());
     }
 }

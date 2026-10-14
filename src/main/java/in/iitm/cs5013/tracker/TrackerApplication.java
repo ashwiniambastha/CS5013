@@ -6,25 +6,39 @@ import in.iitm.cs5013.tracker.repository.SqliteProjectRepository;
 import in.iitm.cs5013.tracker.service.ProjectService;
 import in.iitm.cs5013.tracker.service.WorkService;
 import in.iitm.cs5013.tracker.repository.SqliteWorkRepository;
+import in.iitm.cs5013.tracker.service.StatusService;
+import in.iitm.cs5013.tracker.report.StatusBoardRenderer;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
+import picocli.CommandLine.Spec;
+import picocli.CommandLine.Model.CommandSpec;
+import java.util.concurrent.Callable;
 import java.time.Clock;
 import java.time.LocalDate;
 import java.util.UUID;
 
 /** Entry point. Tracking features will be added in the next implementation parts. */
 @Command(name="tracker", mixinStandardHelpOptions=true, description="Local student project progress tracker")
-public final class TrackerApplication implements Runnable {
+public final class TrackerApplication implements Callable<Integer> {
     private final ProjectService service;
     private final WorkService work;
-    public TrackerApplication(ProjectService service, WorkService work) {
+    private final StatusService status;
+    @Spec private CommandSpec spec;
+    public TrackerApplication(ProjectService service, WorkService work, StatusService status) {
         this.service = service;
         this.work = work;
+        this.status = status;
     }
-    public void run() {
-        System.out.println("Student Project Progress Tracker - Part 4");
-        System.out.println("Use --help for commands. Status board comes in Part 5.");
+    public Integer call() throws Exception {
+        showStatus(StatusService.DEFAULT_STALE_DAYS);
+        return 0;
+    }
+
+    @Command(name="status", description="Show active projects and attention flags")
+    void showStatus(@Option(names="--stale-days", defaultValue="14",
+                    description="Flag updates older than this many days (positive integer)") int staleDays) throws Exception {
+        new StatusBoardRenderer().render(status.board(staleDays), spec.commandLine().getOut());
     }
 
     @Command(name="project-add", description="Create an active project")
@@ -122,9 +136,11 @@ public final class TrackerApplication implements Runnable {
     public static void main(String[] args) throws Exception {
         Database database = new Database(AppPaths.database());
         database.initialize();
-        var service = new ProjectService(new SqliteProjectRepository(database), Clock.systemDefaultZone());
-        var work = new WorkService(new SqliteWorkRepository(database), service, Clock.systemDefaultZone());
-        var cli = new CommandLine(new TrackerApplication(service, work));
+        Clock clock = Clock.systemDefaultZone();
+        var service = new ProjectService(new SqliteProjectRepository(database), clock);
+        var work = new WorkService(new SqliteWorkRepository(database), service, clock);
+        var status = new StatusService(service, work, clock);
+        var cli = new CommandLine(new TrackerApplication(service, work, status));
         cli.setExecutionExceptionHandler((exception, command, parseResult) -> {
             command.getErr().println("Error: " + exception.getMessage());
             return 1;

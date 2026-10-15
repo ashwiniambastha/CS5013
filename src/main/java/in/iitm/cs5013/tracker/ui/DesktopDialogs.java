@@ -12,9 +12,22 @@ public interface DesktopDialogs {
     Path chooseReportDirectory(Component parent);
     boolean confirmImport(Component parent, ImportData.Result preview);
     boolean confirmCompletion(Component parent, String projectId);
+    Path chooseBackup(Component parent);
+    boolean confirmRestore(Component parent, Path file);
 
     static DesktopDialogs swing() {
         return new DesktopDialogs() {
+            public Path chooseBackup(Component parent) {
+                var chooser = new JFileChooser();
+                chooser.setDialogTitle("Choose a tracker backup");
+                chooser.setFileFilter(new FileNameExtensionFilter("Tracker backup (.db)", "db"));
+                return chooser.showOpenDialog(parent) == JFileChooser.APPROVE_OPTION ? chooser.getSelectedFile().toPath() : null;
+            }
+            public boolean confirmRestore(Component parent, Path file) {
+                return JOptionPane.showConfirmDialog(parent, "Replace current records with this backup?\n" + file
+                    + "\nClose other tracker windows first. A recovery copy will be saved.\nReports already exported are kept.",
+                    "Restore backup", JOptionPane.OK_CANCEL_OPTION, JOptionPane.WARNING_MESSAGE) == JOptionPane.OK_OPTION;
+            }
             public Path chooseImport(Component parent) {
                 var chooser = new JFileChooser();
                 chooser.setFileFilter(new FileNameExtensionFilter("Project updates (.csv, .xlsx)", "csv", "xlsx"));

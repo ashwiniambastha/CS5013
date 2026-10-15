@@ -16,6 +16,8 @@ public final class Database {
         this.path = path.toAbsolutePath().normalize();
     }
 
+    public Path path() { return path; }
+
     public Connection open() throws SQLException, IOException {
         Files.createDirectories(path.getParent());
         Connection connection = DriverManager.getConnection("jdbc:sqlite:" + path);

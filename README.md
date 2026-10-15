@@ -30,10 +30,16 @@ Records stay on the supervisor's laptop in a SQLite database. The application re
 | Meeting reports | Save a dated text summary of every active project |
 | CSV / Excel imports | Preview, validate, and import projects and updates without duplicates |
 | Desktop window | Use forms, tables, file pickers, and report previews through Java Swing |
+| Backup and restore | Save SQLite snapshots and restore them with a pre-restore recovery copy |
+| Windows handover | Package a bundled runtime, desktop shortcut, and optional weekly reporting task |
 
-**Progress:** Parts 1–8 are implemented, including the Swing desktop interface. Installation packaging, scheduling, and backup/restore are planned for Part 9. The stakeholder dry-run is still pending.
+**Progress:** Parts 1–9 are implemented. The stakeholder's laptop dry-run, preferred settings, and two-week unattended reporting check remain pending.
 
 ## Quick start
+
+**For the stakeholder:** use the extracted Windows package and double-click `StudentProjectTracker.exe`. It includes Java. See the [installation and handover guide](docs/part-09-handover.md).
+
+The steps below are for building and running from source.
 
 ### 1. Check the requirements
 
@@ -119,6 +125,8 @@ Set `$trackerJar` as shown above, then run `java -jar $trackerJar` followed by a
 | Complete a project | `project-complete --id P001` |
 | Check the status board | `status` |
 | Open the desktop window | `gui` |
+| Back up tracking records | `backup` |
+| Restore a saved backup | `restore "backup.db" --confirm` |
 | Use a seven-day update threshold | `status --stale-days 7` |
 | Save a report to a directory | `report --output "reports"` |
 | Preview an import | `import "updates.csv" --dry-run` |
@@ -143,6 +151,7 @@ The current import format covers **projects and weekly updates**. Tasks and foll
 | --- | --- |
 | Database | `%LOCALAPPDATA%\StudentProjectTracker\tracker.db` |
 | Reports | `%LOCALAPPDATA%\StudentProjectTracker\reports\` |
+| Backups | `%LOCALAPPDATA%\StudentProjectTracker\backups\` |
 | Built application | `target/student-project-tracker-0.1.0-SNAPSHOT.jar` |
 
 Application data lives separately from the installed code. Use `-Dtracker.dataDir=<folder>` to choose another data directory, or `report --output <folder>` to choose a report directory. Reports are named `supervision-summary-yyyy-MM-dd.txt`.
@@ -173,6 +182,7 @@ src/main/java/in/iitm/cs5013/tracker/
 src/test/         Automated tests and expected report fixture
 fixtures/         Anonymised sample import
 docs/             Design roadmap and implementation walkthroughs
+scripts/          Windows packaging, installation, and weekly reporting
 ```
 
 ## Tests
@@ -195,6 +205,6 @@ Tests cover persistence, date boundaries, task/follow-up independence, report ou
 | 6 | Meeting reports | [Generate dated summaries](docs/part-06-reports.md) |
 | 7 | CSV and Excel imports | [Validate and import records](docs/part-07-imports.md) |
 | 8 | Desktop interface | [Use the desktop window](docs/part-08-desktop.md) |
-| 9 | Packaging and handover | Planned |
+| 9 | Packaging and handover | [Install, schedule, back up and restore](docs/part-09-handover.md) |
 
-The stakeholder's file layout, preferred update threshold, and report format still need confirmation through a dry-run. The final desktop package is planned to include its own Java runtime.
+The stakeholder's file layout, preferred update threshold, and report format still need confirmation through a dry-run. Build the self-contained Windows package with `scripts/build-windows.ps1`. Scheduling is opt-in during handover; no recurring task is activated by the build.

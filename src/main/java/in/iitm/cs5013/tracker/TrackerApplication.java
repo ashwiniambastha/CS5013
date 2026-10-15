@@ -11,6 +11,7 @@ import in.iitm.cs5013.tracker.report.StatusBoardRenderer;
 import in.iitm.cs5013.tracker.report.TextSummaryRenderer;
 import in.iitm.cs5013.tracker.service.ReportService;
 import in.iitm.cs5013.tracker.service.ImportService;
+import in.iitm.cs5013.tracker.service.BackupService;
 import in.iitm.cs5013.tracker.repository.SqliteImportRepository;
 import picocli.CommandLine.Parameters;
 import in.iitm.cs5013.tracker.ui.TrackerDesktop;
@@ -33,13 +34,15 @@ public final class TrackerApplication implements Callable<Integer> {
     private final WorkService work;
     private final StatusService status;
     private final ImportService importer;
+    private final BackupService backups;
     private boolean desktopLaunched;
     @Spec private CommandSpec spec;
-    public TrackerApplication(ProjectService service, WorkService work, StatusService status, ImportService importer) {
+    public TrackerApplication(ProjectService service, WorkService work, StatusService status, ImportService importer, BackupService backups) {
         this.service = service;
         this.work = work;
         this.status = status;
         this.importer = importer;
+        this.backups = backups;
     }
     public Integer call() throws Exception {
         showStatus(StatusService.DEFAULT_STALE_DAYS);
@@ -55,8 +58,21 @@ public final class TrackerApplication implements Callable<Integer> {
     @Command(name="gui", description="Open the desktop interface")
     void gui() {
         TrackerDesktop.launch(new TrackerPanel.Services(service, work, status, importer,
-            new ReportService(status, new TextSummaryRenderer()), Clock.systemDefaultZone()));
+            new ReportService(status, new TextSummaryRenderer()), Clock.systemDefaultZone(), backups));
         desktopLaunched = true;
+    }
+
+    @Command(name="backup", description="Save a consistent SQLite snapshot")
+    void backup(@Option(names="--output", description="Backup directory; default: backups beside the database") Path directory) throws Exception {
+        spec.commandLine().getOut().println("Saved backup: " + backups.backup(directory == null ? backups.defaultDirectory() : directory));
+    }
+
+    @Command(name="restore", description="Replace current records with a validated backup; save a recovery copy first")
+    void restore(@Parameters(index="0") Path file,
+                 @Option(names="--confirm", description="Confirm replacement of current records") boolean confirm) throws Exception {
+        if (!confirm) throw new IllegalArgumentException("Restore replaces current records. Close other tracker windows and rerun with --confirm.");
+        var result = backups.restore(file);
+        spec.commandLine().getOut().println("Restored backup. Previous records saved at: " + result.recoveryBackup());
     }
 
     @Command(name="import", description="Import project updates from CSV or the first sheet of XLSX")
@@ -176,7 +192,7 @@ public final class TrackerApplication implements Callable<Integer> {
         var work = new WorkService(new SqliteWorkRepository(database), service, clock);
         var status = new StatusService(service, work, clock);
         var importer = new ImportService(new SqliteImportRepository(database), clock);
-        var application = new TrackerApplication(service, work, status, importer);
+        var application = new TrackerApplication(service, work, status, importer, new BackupService(database, clock));
         var cli = new CommandLine(application);
         cli.setExecutionExceptionHandler((exception, command, parseResult) -> {
             command.getErr().println("Error: " + exception.getMessage());

@@ -6,6 +6,7 @@ import in.iitm.cs5013.tracker.service.ProjectService;
 import in.iitm.cs5013.tracker.service.WorkService;
 import in.iitm.cs5013.tracker.service.StatusService;
 import in.iitm.cs5013.tracker.service.ImportService;
+import in.iitm.cs5013.tracker.service.BackupService;
 import in.iitm.cs5013.tracker.repository.SqliteImportRepository;
 import in.iitm.cs5013.tracker.repository.SqliteWorkRepository;
 import org.junit.jupiter.api.Test;
@@ -29,7 +30,8 @@ class TrackerCommandTest {
             Clock.fixed(Instant.parse("2026-10-14T06:00:00Z"), ZoneOffset.UTC));
         var status = new StatusService(service, work, Clock.fixed(Instant.parse("2026-10-14T06:00:00Z"), ZoneOffset.UTC));
         var importer = new ImportService(new SqliteImportRepository(database), Clock.fixed(Instant.parse("2026-10-14T06:00:00Z"), ZoneOffset.UTC));
-        var cli = new CommandLine(new TrackerApplication(service, work, status, importer));
+        var cli = new CommandLine(new TrackerApplication(service, work, status, importer,
+            new BackupService(database, Clock.fixed(Instant.parse("2026-10-14T06:00:00Z"), ZoneOffset.UTC))));
         cli.setErr(new PrintWriter(new StringWriter()));
         assertEquals(0, cli.execute("project-add", "--id", "P001", "--student", "Student A",
             "--title", "Graph Theory", "--start", "2026-10-01"));
@@ -59,7 +61,7 @@ class TrackerCommandTest {
         projects.add("P001", "Student A", "Study", LocalDate.parse("2026-10-01"));
         work.addTask("T001", "P001", "Submit draft", LocalDate.parse("2026-10-13"));
         var cli = new CommandLine(new TrackerApplication(projects, work, new StatusService(projects, work, clock),
-            new ImportService(new SqliteImportRepository(database), clock)));
+            new ImportService(new SqliteImportRepository(database), clock), new BackupService(database, clock)));
         var output = new StringWriter();
         cli.setOut(new PrintWriter(output));
         cli.setErr(new PrintWriter(new StringWriter()));
@@ -87,5 +89,14 @@ class TrackerCommandTest {
         assertEquals(2, projects.list(true).size());
         assertEquals(0, cli.execute("import", importFile.toString()));
         assertEquals(1, projects.updates("P002").size());
+        Path backupDirectory = temporary.resolve("backups");
+        assertEquals(0, cli.execute("backup", "--output", backupDirectory.toString()));
+        Path backup;
+        try (var files = java.nio.file.Files.list(backupDirectory)) { backup = files.findFirst().orElseThrow(); }
+        projects.complete("P002");
+        assertEquals(1, cli.execute("restore", backup.toString()));
+        assertEquals(1, projects.list(false).size());
+        assertEquals(0, cli.execute("restore", backup.toString(), "--confirm"));
+        assertEquals(2, projects.list(false).size());
     }
 }

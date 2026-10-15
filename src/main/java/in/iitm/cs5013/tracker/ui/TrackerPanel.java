@@ -17,7 +17,7 @@ import java.util.function.Consumer;
 /** UI orchestration only. Database and date decisions remain in services. */
 public final class TrackerPanel extends JPanel {
     public record Services(ProjectService projects, WorkService work, StatusService status,
-                           ImportService importer, ReportService reports, Clock clock) { }
+                           ImportService importer, ReportService reports, Clock clock, BackupService backups) { }
     @FunctionalInterface private interface Job<T> { T run() throws Exception; }
     @FunctionalInterface private interface FormAction { void run(List<String> values, String projectId) throws Exception; }
     private record Choice(String id, String label) { public String toString() { return label; } }
@@ -63,6 +63,16 @@ public final class TrackerPanel extends JPanel {
         JPanel actions = new JPanel(new FlowLayout(FlowLayout.RIGHT, 8, 0));
         actions.add(button("Refresh", this::refresh));
         actions.add(button("Import CSV / Excel", this::chooseImport));
+        actions.add(button("Backup", () -> submit(() -> services.backups().backup(services.backups().defaultDirectory()),
+            path -> message("Saved backup: " + path + ". Copy this file to another drive for safekeeping."))));
+        actions.add(button("Restore", () -> {
+            Path source = dialogs.chooseBackup(this);
+            if (source != null && dialogs.confirmRestore(this, source))
+                submit(() -> services.backups().restore(source), result -> {
+                    reportPreview.setText("");
+                    message("Restored backup. Previous records saved at: " + result.recoveryBackup()); refresh();
+                });
+        }));
         selection.add(actions, BorderLayout.EAST);
         toolbar.add(selection, BorderLayout.NORTH);
         JPanel rules = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));

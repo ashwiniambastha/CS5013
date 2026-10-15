@@ -29,15 +29,18 @@ class TrackerPanelTest {
         Files.copy(Path.of("fixtures/updates-template.csv"), file);
         var confirm = new AtomicReference<>(false);
         var preview = new AtomicReference<ImportData.Result>();
+        var restoreFile = new AtomicReference<Path>();
         DesktopDialogs dialogs = new DesktopDialogs() {
             public Path chooseImport(Component parent) { return file; }
             public Path chooseReportDirectory(Component parent) { return temporary.resolve("reports"); }
             public boolean confirmImport(Component parent, ImportData.Result result) { preview.set(result); return confirm.get(); }
             public boolean confirmCompletion(Component parent, String id) { return confirm.get(); }
+            public Path chooseBackup(Component parent) { return restoreFile.get(); }
+            public boolean confirmRestore(Component parent, Path file) { return confirm.get(); }
         };
         var reference = new AtomicReference<TrackerPanel>();
         SwingUtilities.invokeAndWait(() -> reference.set(new TrackerPanel(new TrackerPanel.Services(
-            projects,work,status,importer,new ReportService(status,new TextSummaryRenderer()),clock), dialogs)));
+            projects,work,status,importer,new ReportService(status,new TextSummaryRenderer()),clock,new BackupService(database,clock)), dialogs)));
         var panel = reference.get(); awaitIdle(panel);
         clickLabel(panel,"Import CSV / Excel"); awaitIdle(panel);
         assertEquals(3, preview.get().updatesAdded()); assertTrue(projects.list(true).isEmpty());
@@ -46,9 +49,15 @@ class TrackerPanelTest {
         assertEquals(2, projects.list(true).size());
         clickLabel(panel,"Import CSV / Excel"); awaitIdle(panel);
         assertEquals(3, preview.get().updatesSkipped());
+        clickLabel(panel,"Backup"); awaitIdle(panel);
+        try (var files = Files.list(temporary.resolve("backups"))) { restoreFile.set(files.findFirst().orElseThrow()); }
         // Completing the selected project retains it in history, but removes it from the board.
         clickLabel(panel,"Complete selected project"); awaitIdle(panel);
         assertEquals(1, projects.list(false).size()); assertEquals(2, projects.list(true).size());
+        confirm.set(false); clickLabel(panel,"Restore"); awaitIdle(panel);
+        assertEquals(1, projects.list(false).size());
+        confirm.set(true); clickLabel(panel,"Restore"); awaitIdle(panel);
+        assertEquals(2, projects.list(false).size());
         Files.writeString(file,"broken,header\n"); preview.set(null);
         clickLabel(panel,"Import CSV / Excel"); awaitIdle(panel);
         assertNull(preview.get());
@@ -65,7 +74,7 @@ class TrackerPanelTest {
         var importer = new ImportService(new SqliteImportRepository(database), clock);
         var reference = new AtomicReference<TrackerPanel>();
         SwingUtilities.invokeAndWait(() -> reference.set(new TrackerPanel(new TrackerPanel.Services(
-            projects,work,status,importer,new ReportService(status,new TextSummaryRenderer()),clock))));
+            projects,work,status,importer,new ReportService(status,new TextSummaryRenderer()),clock,new BackupService(database,clock)))));
         TrackerPanel panel = reference.get(); awaitIdle(panel);
         set(panel,"project-0","P001"); set(panel,"project-1","Student A"); set(panel,"project-2","Graph Theory");
         click(panel,"project-save"); awaitIdle(panel);

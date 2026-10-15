@@ -29,8 +29,9 @@ Records stay on the supervisor's laptop in a SQLite database. The application re
 | Status board | Show missing updates, overdue work, items due today, and upcoming deadlines |
 | Meeting reports | Save a dated text summary of every active project |
 | CSV / Excel imports | Preview, validate, and import projects and updates without duplicates |
+| Desktop window | Use forms, tables, file pickers, and report previews through Java Swing |
 
-**Progress:** Parts 1–7 are complete. The Swing desktop interface is in progress. Installation packaging, scheduling, and backup/restore are planned for Part 9.
+**Progress:** Parts 1–8 are implemented, including the Swing desktop interface. Installation packaging, scheduling, and backup/restore are planned for Part 9. The stakeholder dry-run is still pending.
 
 ## Quick start
 
@@ -66,6 +67,14 @@ A new database starts with no active projects. To see the available commands:
 ```powershell
 java -jar $trackerJar --help
 ```
+
+### 4. Open the desktop window
+
+```powershell
+java -jar $trackerJar gui
+```
+
+Use **Dashboard**, **Projects**, **Follow-ups**, and **Reports** to work through forms and buttons. Start with Projects → Add project, or click Import CSV / Excel to bring in existing updates. See the [desktop walkthrough](docs/part-08-desktop.md).
 
 ## Try a demo
 
@@ -109,6 +118,7 @@ Set `$trackerJar` as shown above, then run `java -jar $trackerJar` followed by a
 | Resolve a follow-up | `followup-resolve --id F001` |
 | Complete a project | `project-complete --id P001` |
 | Check the status board | `status` |
+| Open the desktop window | `gui` |
 | Use a seven-day update threshold | `status --stale-days 7` |
 | Save a report to a directory | `report --output "reports"` |
 | Preview an import | `import "updates.csv" --dry-run` |
@@ -146,7 +156,7 @@ Application data lives separately from the installed code. Use `-Dtracker.dataDi
 | Local storage | SQLite via JDBC |
 | File imports | Apache Commons CSV, Apache POI |
 | Tests | JUnit 5 |
-| Desktop interface | Java Swing — in progress |
+| Desktop interface | Java Swing |
 
 The application follows **interface → services → repositories → SQLite**. Services hold the rules, repositories handle storage, and renderers format the board and reports.
 
@@ -157,7 +167,8 @@ src/main/java/in/iitm/cs5013/tracker/
 ├── model/        Projects, updates, tasks, and follow-ups
 ├── repository/   Database access and transactions
 ├── service/      Validation and tracking rules
-└── report/       Status board and summary formatting
+├── report/       Status board and summary formatting
+└── ui/           Desktop tabs, forms, and dialogs
 
 src/test/         Automated tests and expected report fixture
 fixtures/         Anonymised sample import
@@ -183,7 +194,7 @@ Tests cover persistence, date boundaries, task/follow-up independence, report ou
 | 5 | Status board | [Calculate attention flags](docs/part-05-status-board.md) |
 | 6 | Meeting reports | [Generate dated summaries](docs/part-06-reports.md) |
 | 7 | CSV and Excel imports | [Validate and import records](docs/part-07-imports.md) |
-| 8 | Desktop interface | In progress |
+| 8 | Desktop interface | [Use the desktop window](docs/part-08-desktop.md) |
 | 9 | Packaging and handover | Planned |
 
 The stakeholder's file layout, preferred update threshold, and report format still need confirmation through a dry-run. The final desktop package is planned to include its own Java runtime.

@@ -13,6 +13,8 @@ import in.iitm.cs5013.tracker.service.ReportService;
 import in.iitm.cs5013.tracker.service.ImportService;
 import in.iitm.cs5013.tracker.repository.SqliteImportRepository;
 import picocli.CommandLine.Parameters;
+import in.iitm.cs5013.tracker.ui.TrackerDesktop;
+import in.iitm.cs5013.tracker.ui.TrackerPanel;
 import java.nio.file.Path;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
@@ -31,6 +33,7 @@ public final class TrackerApplication implements Callable<Integer> {
     private final WorkService work;
     private final StatusService status;
     private final ImportService importer;
+    private boolean desktopLaunched;
     @Spec private CommandSpec spec;
     public TrackerApplication(ProjectService service, WorkService work, StatusService status, ImportService importer) {
         this.service = service;
@@ -47,6 +50,13 @@ public final class TrackerApplication implements Callable<Integer> {
     void showStatus(@Option(names="--stale-days", defaultValue="14",
                     description="Flag updates older than this many days (positive integer)") int staleDays) throws Exception {
         new StatusBoardRenderer().render(status.board(staleDays), spec.commandLine().getOut());
+    }
+
+    @Command(name="gui", description="Open the desktop interface")
+    void gui() {
+        TrackerDesktop.launch(new TrackerPanel.Services(service, work, status, importer,
+            new ReportService(status, new TextSummaryRenderer()), Clock.systemDefaultZone()));
+        desktopLaunched = true;
     }
 
     @Command(name="import", description="Import project updates from CSV or the first sheet of XLSX")
@@ -166,11 +176,13 @@ public final class TrackerApplication implements Callable<Integer> {
         var work = new WorkService(new SqliteWorkRepository(database), service, clock);
         var status = new StatusService(service, work, clock);
         var importer = new ImportService(new SqliteImportRepository(database), clock);
-        var cli = new CommandLine(new TrackerApplication(service, work, status, importer));
+        var application = new TrackerApplication(service, work, status, importer);
+        var cli = new CommandLine(application);
         cli.setExecutionExceptionHandler((exception, command, parseResult) -> {
             command.getErr().println("Error: " + exception.getMessage());
             return 1;
         });
-        System.exit(cli.execute(args));
+        int exitCode = cli.execute(args);
+        if (!application.desktopLaunched) System.exit(exitCode);
     }
 }

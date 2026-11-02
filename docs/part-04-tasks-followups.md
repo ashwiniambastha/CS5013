@@ -49,7 +49,7 @@ is needed for this part.
 Build with `mvn package`. From the repository directory in PowerShell:
 
 ```powershell
-$trackerJar = 'target/student-project-tracker-0.1.0-SNAPSHOT.jar'
+$trackerJar = 'target/student-project-tracker-1.0.0.jar'
 $demoData = 'target/part4-demo'
 java "-Dtracker.dataDir=$demoData" -jar $trackerJar project-add --id P001 --student "Student A" --title "Graph Theory" --start 2026-10-01
 java "-Dtracker.dataDir=$demoData" -jar $trackerJar task-add --id T001 --project P001 --text "Submit literature review" --due 2026-10-20

@@ -19,6 +19,10 @@ if (-not $NoShortcut) {
     $shortcut.TargetPath = Join-Path $destination 'StudentProjectTracker.exe'
     $shortcut.WorkingDirectory = $destination
     $shortcut.Save()
+    $demoShortcut = $shell.CreateShortcut((Join-Path ([Environment]::GetFolderPath('Desktop')) 'Student Project Tracker Demo.lnk'))
+    $demoShortcut.TargetPath = Join-Path $destination 'TrackerDemo.exe'
+    $demoShortcut.WorkingDirectory = $destination
+    $demoShortcut.Save()
 }
 Write-Output "Installed: $destination"
 Write-Output 'Existing tracking data is kept in your application-data folder.'

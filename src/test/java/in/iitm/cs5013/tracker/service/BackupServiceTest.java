@@ -53,4 +53,12 @@ class BackupServiceTest {
             assertEquals("In WAL",restoredProjects.updates("P001").get(0).summary());
         }
     }
+    @Test void malformedDatesAreRejectedBeforeCurrentRecordsChange() throws Exception {
+        Path snapshot = backups.backup(temporary.resolve("archives"));
+        try (var connection = java.sql.DriverManager.getConnection("jdbc:sqlite:"+snapshot); var statement = connection.createStatement()) {
+            statement.executeUpdate("UPDATE projects SET started_on='invalid-date'");
+        }
+        assertThrows(java.sql.SQLException.class, () -> backups.restore(snapshot));
+        assertEquals(LocalDate.parse("2026-10-01"),projects.get("P001").startedOn());
+    }
 }

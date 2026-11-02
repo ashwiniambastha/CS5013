@@ -43,7 +43,7 @@ powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\install-windows.ps
 ```
 
 The installation is per-user under
-%LOCALAPPDATA%\Programs\StudentProjectTracker\0.1.0. No administrator installation
+%LOCALAPPDATA%\Programs\StudentProjectTracker\1.0.0. No administrator installation
 is needed. The script will not overwrite an existing version directory.
 Run it as the professor's own Windows user so the shortcut and data belong to him.
 The scripts are unsigned; university device policy may restrict their execution.

@@ -67,7 +67,7 @@ this version. Export and column mapping are not implemented yet.
 After `mvn package`, from the repository folder in PowerShell:
 
 ```powershell
-$trackerJar = 'target/student-project-tracker-0.1.0-SNAPSHOT.jar'
+$trackerJar = 'target/student-project-tracker-1.0.0.jar'
 $demoData = 'target/part7-demo'
 java "-Dtracker.dataDir=$demoData" -jar $trackerJar import fixtures/updates-template.csv --dry-run
 java "-Dtracker.dataDir=$demoData" -jar $trackerJar import fixtures/updates-template.csv

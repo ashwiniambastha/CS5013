@@ -1,0 +1,56 @@
+STUDENT PROJECT PROGRESS TRACKER - 1.0.0
+CS5013 Programming with AI | Ashwini MA25M006
+
+FIRST: Extract the ENTIRE ZIP. Do not run the app from inside the ZIP.
+Keep the app and runtime folders beside the executable files.
+This Windows 64-bit package includes Java; no separate installation is needed.
+
+TRY A DEMO
+Double-click TrackerDemo.exe.
+It opens sample records in a separate demo database, labelled DEMO.
+The demo contains twelve weeks of history, missing updates, overdue tasks,
+same-day deadlines, a late resolved follow-up, and a completed project.
+Each calendar day gets a fresh demo; reopening on the same day keeps your edits.
+
+INSTALL ON THE PROFESSOR'S WINDOWS LAPTOP
+Double-click Install.cmd. It installs for the current user and creates shortcuts.
+No administrator installation is needed. Do this under his Windows account.
+Alternatively run StudentProjectTracker.exe directly from the extracted folder.
+The normal application starts empty; it does not contain demo records.
+If this version is already installed, use the existing desktop shortcut.
+
+REHEARSE THIS FIVE-MINUTE DEMO
+1. In TrackerDemo.exe, show Dashboard: Student B is stale and overdue.
+2. Select D002, open Projects > Weekly updates, and save a new update.
+3. Open Projects > Tasks, select DT2 and mark it done.
+4. Open Follow-ups, select DF1 and resolve it. Refresh Dashboard.
+5. Open Reports and generate a summary; read the preview and saved path.
+6. Click Backup, then Restore to demonstrate recovery if desired.
+7. Show Add project and Import CSV / Excel with the anonymised template.
+
+REAL RECORDS
+Use StudentProjectTracker.exe. In Projects > Add project, create a project,
+or use Import CSV / Excel with fixtures/updates-template.csv as the format.
+Dates are yyyy-MM-dd. Preview the import before confirming.
+Do not import the sample file into his real records unless he wants sample data.
+
+DATA AND BACKUPS
+Default: %LOCALAPPDATA%\StudentProjectTracker\
+Database: tracker.db; reports: reports\; backups: backups\.
+Demo: demo\YYYY-MM-DD\tracker.db (independent of the normal database).
+Copy important backup files to another drive. Restore makes a recovery copy first.
+Exported reports are not part of a database backup.
+
+WEEKLY REPORTS
+Scheduling is optional and is not activated by installation.
+Follow docs/part-09-handover.md to choose a day/time and register the task.
+It runs for the installed user's account while that user is logged in.
+
+IF SOMETHING DOES NOT OPEN
+Check that the full ZIP is extracted, use the Windows 64-bit package on Windows,
+and keep all supplied files together. The data directory must be writable.
+University device policy may restrict unsigned apps or scripts.
+The detailed handover guide includes manual installation and scheduling commands.
+
+The professor's preferred spreadsheet layout, threshold and report format still
+need his review. No stakeholder feedback or acceptance is claimed by this package.

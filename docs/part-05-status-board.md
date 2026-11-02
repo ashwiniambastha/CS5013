@@ -54,7 +54,7 @@ one atomic database snapshot; simultaneous changes may appear on the next refres
 After `mvn package`, from the repository folder in PowerShell:
 
 ```powershell
-$trackerJar = 'target/student-project-tracker-0.1.0-SNAPSHOT.jar'
+$trackerJar = 'target/student-project-tracker-1.0.0.jar'
 java -jar $trackerJar
 java -jar $trackerJar status
 java -jar $trackerJar status --stale-days 7

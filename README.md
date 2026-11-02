@@ -8,6 +8,10 @@ A local Java application that helps a supervisor track student progress and prep
 
 [Quick start](#quick-start) · [Try a demo](#try-a-demo) · [Commands](#commands) · [Design guides](#design-guides)
 
+**Ready for a demo or Windows installation?** Extract the version 1.0.0 package,
+open **TrackerDemo.exe** for sample records, or **Install.cmd** to install.
+Start with [the rehearsal guide](docs/demo-and-install.md) and [delivery status](docs/delivery-status.md).
+
 ## Why this project?
 
 Student updates, pending work, and deadlines can become scattered across notes, emails, and spreadsheets. This tracker brings those records together and highlights what needs attention before a meeting.
@@ -64,7 +68,7 @@ The build runs the tests and creates an executable JAR with its dependencies inc
 Run these commands from the repository directory in PowerShell:
 
 ```powershell
-$trackerJar = 'target/student-project-tracker-0.1.0-SNAPSHOT.jar'
+$trackerJar = 'target/student-project-tracker-1.0.0.jar'
 java -jar $trackerJar
 ```
 
@@ -84,10 +88,15 @@ Use **Dashboard**, **Projects**, **Follow-ups**, and **Reports** to work through
 
 ## Try a demo
 
+The Windows package includes **TrackerDemo.exe**, which opens a separately labelled
+demo with twelve weeks of sample history and realistic attention cases. It keeps
+rehearsal edits separate from working records. A new day gets fresh demo data.
+From source, run `java -jar $trackerJar demo` after building.
+
 Use the included [anonymised sample file](fixtures/updates-template.csv) to try the workflow. This example keeps demo data under `target/demo-data`, separate from the normal database.
 
 ```powershell
-$trackerJar = 'target/student-project-tracker-0.1.0-SNAPSHOT.jar'
+$trackerJar = 'target/student-project-tracker-1.0.0.jar'
 $demoData = 'target/demo-data'
 
 # Preview the file without saving
@@ -125,6 +134,7 @@ Set `$trackerJar` as shown above, then run `java -jar $trackerJar` followed by a
 | Complete a project | `project-complete --id P001` |
 | Check the status board | `status` |
 | Open the desktop window | `gui` |
+| Open the separate twelve-week demo | `demo` |
 | Back up tracking records | `backup` |
 | Restore a saved backup | `restore "backup.db" --confirm` |
 | Use a seven-day update threshold | `status --stale-days 7` |
@@ -152,7 +162,7 @@ The current import format covers **projects and weekly updates**. Tasks and foll
 | Database | `%LOCALAPPDATA%\StudentProjectTracker\tracker.db` |
 | Reports | `%LOCALAPPDATA%\StudentProjectTracker\reports\` |
 | Backups | `%LOCALAPPDATA%\StudentProjectTracker\backups\` |
-| Built application | `target/student-project-tracker-0.1.0-SNAPSHOT.jar` |
+| Built application | `target/student-project-tracker-1.0.0.jar` |
 
 Application data lives separately from the installed code. Use `-Dtracker.dataDir=<folder>` to choose another data directory, or `report --output <folder>` to choose a report directory. Reports are named `supervision-summary-yyyy-MM-dd.txt`.
 

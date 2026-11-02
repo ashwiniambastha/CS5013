@@ -12,6 +12,7 @@ import in.iitm.cs5013.tracker.report.TextSummaryRenderer;
 import in.iitm.cs5013.tracker.service.ReportService;
 import in.iitm.cs5013.tracker.service.ImportService;
 import in.iitm.cs5013.tracker.service.BackupService;
+import in.iitm.cs5013.tracker.service.DemoService;
 import in.iitm.cs5013.tracker.repository.SqliteImportRepository;
 import picocli.CommandLine.Parameters;
 import in.iitm.cs5013.tracker.ui.TrackerDesktop;
@@ -53,6 +54,12 @@ public final class TrackerApplication implements Callable<Integer> {
     void showStatus(@Option(names="--stale-days", defaultValue="14",
                     description="Flag updates older than this many days (positive integer)") int staleDays) throws Exception {
         new StatusBoardRenderer().render(status.board(staleDays), spec.commandLine().getOut());
+    }
+
+    @Command(name="demo", description="Open a separate daily demo with realistic sample records")
+    void demo(@Option(names="--no-gui", description="Seed and print the demo board without opening a window") boolean noGui) throws Exception {
+        new DemoService(new Database(AppPaths.database()), Clock.systemDefaultZone()).seed();
+        if (noGui) showStatus(StatusService.DEFAULT_STALE_DAYS); else gui();
     }
 
     @Command(name="gui", description="Open the desktop interface")
@@ -184,7 +191,24 @@ public final class TrackerApplication implements Callable<Integer> {
         System.out.println("Follow-up " + id + " is resolved.");
     }
 
-    public static void main(String[] args) throws Exception {
+    public static void main(String[] args) {
+        try { start(args); }
+        catch (Exception | LinkageError exception) {
+            String message = "The tracker could not start: " + exception.getMessage()
+                + "\nCheck that the complete application folder was extracted and that the data folder is writable.";
+            System.err.println(message);
+            if (args.length > 0 && (args[0].equals("gui") || args[0].equals("demo")) && !java.awt.GraphicsEnvironment.isHeadless())
+                javax.swing.JOptionPane.showMessageDialog(null, message, "Tracker startup error", javax.swing.JOptionPane.ERROR_MESSAGE);
+            System.exit(1);
+        }
+    }
+
+    private static void start(String[] args) throws Exception {
+        if (args.length > 0 && args[0].equals("demo")) {
+            Path directory = AppPaths.database().toAbsolutePath().getParent().resolve("demo").resolve(LocalDate.now().toString());
+            System.setProperty("tracker.dataDir", directory.toString());
+            System.setProperty("tracker.demo", "true");
+        }
         Database database = new Database(AppPaths.database());
         database.initialize();
         Clock clock = Clock.systemDefaultZone();

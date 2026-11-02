@@ -79,6 +79,7 @@ public final class TrackerPanel extends JPanel {
         rules.add(new JLabel("Flag updates older than (days):  "));
         rules.add(staleDays);
         rules.add(new JLabel("  Change the value, then click Refresh. Dates use yyyy-MM-dd."));
+        if (Boolean.getBoolean("tracker.demo")) rules.add(new JLabel("  DEMO: sample data only"));
         toolbar.add(rules, BorderLayout.SOUTH);
         add(toolbar, BorderLayout.NORTH);
 

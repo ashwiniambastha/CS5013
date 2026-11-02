@@ -73,6 +73,17 @@ public final class BackupService {
             try (var result = statement.executeQuery("PRAGMA foreign_key_check")) {
                 if (result.next()) throw new SQLException("Backup contains invalid project references.");
             }
+            // SQLite integrity checks do not validate ISO dates or application enums.
+            try {
+                try (var rows = statement.executeQuery("SELECT status,started_on FROM projects")) {
+                    while (rows.next()) { in.iitm.cs5013.tracker.model.Project.Status.valueOf(rows.getString(1)); java.time.LocalDate.parse(rows.getString(2)); }
+                }
+                String[] dateQueries = {"SELECT update_date FROM updates", "SELECT due_date,completed_on FROM tasks", "SELECT requested_on,due_date,resolved_on FROM followups"};
+                for (String query : dateQueries) try (var rows = statement.executeQuery(query)) {
+                    while (rows.next()) for (int i=1;i<=rows.getMetaData().getColumnCount();i++)
+                        if (rows.getString(i)!=null) java.time.LocalDate.parse(rows.getString(i));
+                }
+            } catch (RuntimeException exception) { throw new SQLException("Backup contains invalid dates or project status.",exception); }
         }
     }
 }

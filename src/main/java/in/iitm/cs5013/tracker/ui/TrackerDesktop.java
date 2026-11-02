@@ -10,7 +10,7 @@ public final class TrackerDesktop {
     public static void launch(TrackerPanel.Services services) {
         if (GraphicsEnvironment.isHeadless()) throw new IllegalStateException("Desktop mode needs a graphical display. Use CLI commands on this machine.");
         SwingUtilities.invokeLater(() -> {
-            var frame = new JFrame("Student Project Progress Tracker");
+            var frame = new JFrame("Student Project Progress Tracker" + (Boolean.getBoolean("tracker.demo") ? " - DEMO (sample data)" : ""));
             var panel = new TrackerPanel(services);
             frame.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
             frame.addWindowListener(new WindowAdapter() {

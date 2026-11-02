@@ -7,6 +7,9 @@ New-Item -ItemType Directory -Path $smokeRoot -Force | Out-Null
 $dataDirectory = Join-Path $smokeRoot 'data'
 if (-not (Test-Path -LiteralPath (Join-Path $package 'StudentProjectTracker.exe'))) { throw 'Packaged launcher is missing.' }
 if ((Get-Content -LiteralPath (Join-Path $package 'app/StudentProjectTracker.cfg') -Raw) -notmatch 'arguments=gui') { throw 'Desktop launch arguments are missing.' }
+if (-not (Test-Path -LiteralPath (Join-Path $package 'TrackerDemo.exe'))) { throw 'Demo launcher is missing.' }
+if ((Get-Content -LiteralPath (Join-Path $package 'app/TrackerDemo.cfg') -Raw) -notmatch 'arguments=demo') { throw 'Demo launch arguments are missing.' }
+if (-not (Test-Path -LiteralPath (Join-Path $package 'Install.cmd'))) { throw 'One-click installation entry point is missing.' }
 function Invoke-PackagedTracker {
     param([string]$ApplicationDirectory, [string[]]$CommandArgs)
     $javaPath = Join-Path $ApplicationDirectory 'runtime/bin/java.exe'
@@ -19,6 +22,10 @@ $firstRoot = Join-Path $smokeRoot 'installed'
 & (Join-Path $package 'scripts/install-windows.ps1') -InstallRoot $firstRoot -NoShortcut
 $version = (Get-Content -LiteralPath (Join-Path $package 'VERSION.txt') -Raw).Trim()
 $first = Join-Path $firstRoot $version
+$demoBoard = Invoke-PackagedTracker -ApplicationDirectory $first -CommandArgs @('demo','--no-gui')
+if (($demoBoard -join "`n") -notmatch 'MISSING UPDATE' -or ($demoBoard -join "`n") -notmatch 'OVERDUE') { throw 'Demo attention cases are missing.' }
+if (Test-Path -LiteralPath (Join-Path $dataDirectory 'tracker.db')) { throw 'Demo created a normal working database.' }
+Invoke-PackagedTracker -ApplicationDirectory $first -CommandArgs @('demo','--no-gui') | Out-Null
 Invoke-PackagedTracker -ApplicationDirectory $first -CommandArgs @('import',(Join-Path $first 'fixtures/updates-template.csv'))
 Invoke-PackagedTracker -ApplicationDirectory $first -CommandArgs @('backup')
 $backup = Get-ChildItem -LiteralPath (Join-Path $dataDirectory 'backups') -Filter '*.db' | Select-Object -First 1
@@ -43,5 +50,5 @@ $settings = $taskXml.SelectSingleNode("//*[local-name()='StartWhenAvailable']").
 if (-not [IO.Path]::IsPathRooted($command) -or -not $arguments.Contains($second) -or $settings -ne 'true') { throw 'Weekly task definition is invalid.' }
 $taskFile = Join-Path $smokeRoot 'weekly-task-preview.xml'
 $taskXml.Save($taskFile)
-Write-Output 'PASS: bundled runtime, isolated installation, persistence, backup/restore, weekly runner and task XML.'
+Write-Output 'PASS: separate demo, bundled runtime, isolated installation, persistence, backup/restore, weekly runner and task XML.'
 Write-Output "Evidence directory: $smokeRoot"

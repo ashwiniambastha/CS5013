@@ -22,7 +22,7 @@ There is no new database table or new database write for report generation.
 After `mvn package`, from the repository directory in PowerShell:
 
 ```powershell
-$trackerJar = 'target/student-project-tracker-1.0.0.jar'
+$trackerJar = 'target/student-project-tracker-1.1.0.jar'
 java -jar $trackerJar report
 java -jar $trackerJar report --output "target/meeting reports"
 java -jar $trackerJar report --output "target/meeting reports" --stale-days 7

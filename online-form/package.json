@@ -1,0 +1,1 @@
+{"private":true,"type":"module","scripts":{"test":"node --test verification/server.test.mjs"},"engines":{"node":">=22.13.0"}}

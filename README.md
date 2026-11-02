@@ -8,7 +8,7 @@ A local Java application that helps a supervisor track student progress and prep
 
 [Quick start](#quick-start) · [Try a demo](#try-a-demo) · [Commands](#commands) · [Design guides](#design-guides)
 
-**Ready for a demo or Windows installation?** Extract the version 1.0.0 package,
+**Ready for a demo or Windows installation?** Extract the version 1.1.0 package,
 open **TrackerDemo.exe** for sample records, or **Install.cmd** to install.
 Start with [the rehearsal guide](docs/demo-and-install.md) and [delivery status](docs/delivery-status.md).
 
@@ -20,9 +20,15 @@ The workflow is:
 
 **Import or enter records → record progress → check the status board → save a meeting summary**
 
-Records stay on the supervisor's laptop in a SQLite database. The application requires no student accounts, hosted server, or external AI service.
+The working records stay in a local SQLite database. Optional hosted submissions
+store student progress notes online until the professor reviews/imports them.
+Students need no accounts. No external AI service is used.
 
 ## What works today?
+
+**New in 1.1:** [Faculty tools](docs/faculty-tools.md) adds editing/deletion,
+Excel/CSV export, saved thresholds, weekly scheduling controls, email drafts,
+and reviewed imports from a hosted student form.
 
 | Feature | What it does |
 | --- | --- |
@@ -68,7 +74,7 @@ The build runs the tests and creates an executable JAR with its dependencies inc
 Run these commands from the repository directory in PowerShell:
 
 ```powershell
-$trackerJar = 'target/student-project-tracker-1.0.0.jar'
+$trackerJar = 'target/student-project-tracker-1.1.0.jar'
 java -jar $trackerJar
 ```
 
@@ -96,7 +102,7 @@ From source, run `java -jar $trackerJar demo` after building.
 Use the included [anonymised sample file](fixtures/updates-template.csv) to try the workflow. This example keeps demo data under `target/demo-data`, separate from the normal database.
 
 ```powershell
-$trackerJar = 'target/student-project-tracker-1.0.0.jar'
+$trackerJar = 'target/student-project-tracker-1.1.0.jar'
 $demoData = 'target/demo-data'
 
 # Preview the file without saving
@@ -162,7 +168,7 @@ The current import format covers **projects and weekly updates**. Tasks and foll
 | Database | `%LOCALAPPDATA%\StudentProjectTracker\tracker.db` |
 | Reports | `%LOCALAPPDATA%\StudentProjectTracker\reports\` |
 | Backups | `%LOCALAPPDATA%\StudentProjectTracker\backups\` |
-| Built application | `target/student-project-tracker-1.0.0.jar` |
+| Built application | `target/student-project-tracker-1.1.0.jar` |
 
 Application data lives separately from the installed code. Use `-Dtracker.dataDir=<folder>` to choose another data directory, or `report --output <folder>` to choose a report directory. Reports are named `supervision-summary-yyyy-MM-dd.txt`.
 

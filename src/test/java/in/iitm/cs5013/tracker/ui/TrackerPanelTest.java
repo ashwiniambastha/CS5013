@@ -120,6 +120,12 @@ class TrackerPanelTest {
                     var graphics = image.createGraphics(); panel.printAll(graphics); graphics.dispose();
                     ImageIO.write(image,"png",Path.of("target/ui-preview/project-detail-"+i+".png").toFile());
                 }
+                tabs.setSelectedIndex(4);var faculty=(JTabbedPane)find(panel,"faculty-tabs");
+                for(int i=0;i<faculty.getTabCount();i++){
+                    faculty.setSelectedIndex(i);layout(panel);
+                    var image=new BufferedImage(1100,780,BufferedImage.TYPE_INT_RGB);var graphics=image.createGraphics();panel.printAll(graphics);graphics.dispose();
+                    ImageIO.write(image,"png",Path.of("target/ui-preview/faculty-"+i+".png").toFile());
+                }
             } catch (Exception exception) { throw new RuntimeException(exception); }
         });
     }

@@ -46,12 +46,12 @@ public final class TrackerApplication implements Callable<Integer> {
         this.backups = backups;
     }
     public Integer call() throws Exception {
-        showStatus(StatusService.DEFAULT_STALE_DAYS);
+        showStatus(Integer.parseInt(System.getProperty("tracker.staleDays","14")));
         return 0;
     }
 
     @Command(name="status", description="Show active projects and attention flags")
-    void showStatus(@Option(names="--stale-days", defaultValue="14",
+    void showStatus(@Option(names="--stale-days", defaultValue="${sys:tracker.staleDays:-14}",
                     description="Flag updates older than this many days (positive integer)") int staleDays) throws Exception {
         new StatusBoardRenderer().render(status.board(staleDays), spec.commandLine().getOut());
     }
@@ -93,7 +93,7 @@ public final class TrackerApplication implements Callable<Integer> {
 
     @Command(name="report", description="Save a dated UTF-8 meeting summary; replace the same day's report")
     void report(@Option(names="--output", description="Output directory; default: reports beside the database") Path directory,
-                @Option(names="--stale-days", defaultValue="14") int staleDays) throws Exception {
+                @Option(names="--stale-days", defaultValue="${sys:tracker.staleDays:-14}") int staleDays) throws Exception {
         Path output = new ReportService(status, new TextSummaryRenderer()).generate(
             directory == null ? AppPaths.reports() : directory, staleDays);
         spec.commandLine().getOut().println("Saved report: " + output);
@@ -209,6 +209,8 @@ public final class TrackerApplication implements Callable<Integer> {
             System.setProperty("tracker.dataDir", directory.toString());
             System.setProperty("tracker.demo", "true");
         }
+        if(System.getProperty("tracker.staleDays")==null) System.setProperty("tracker.staleDays",String.valueOf(
+            new in.iitm.cs5013.tracker.service.SettingsService(AppPaths.database().toAbsolutePath().getParent()).staleDays()));
         Database database = new Database(AppPaths.database());
         database.initialize();
         Clock clock = Clock.systemDefaultZone();

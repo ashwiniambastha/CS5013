@@ -3,6 +3,12 @@
 The implementation is prepared for local demonstration and Windows installation.
 No stakeholder feedback has been supplied as of 2 November 2026.
 
+The user subsequently requested hosted student submissions and email drafts.
+These are implemented as optional features: submissions use a public classroom
+link and encrypted teacher connection; email opens reviewed drafts, never sends
+automatically. This extends the original strictly offline proposal. The professor
+must approve use of the online form before real progress notes are collected.
+
 ## Implemented
 
 - Local Java/Swing application and command-line interface.

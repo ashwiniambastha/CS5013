@@ -1,4 +1,4 @@
-STUDENT PROJECT PROGRESS TRACKER - 1.0.0
+STUDENT PROJECT PROGRESS TRACKER - 1.1.0
 CS5013 Programming with AI | Ashwini MA25M006
 
 FIRST: Extract the ENTIRE ZIP. Do not run the app from inside the ZIP.
@@ -29,6 +29,9 @@ REHEARSE THIS FIVE-MINUTE DEMO
 7. Show Add project and Import CSV / Excel with the anonymised template.
 
 REAL RECORDS
+The Faculty tools tab provides editing/deletion, Excel/CSV export, email drafts,
+saved preferences, weekly reporting controls and online student submissions.
+Read docs/faculty-tools.md for setup. No terminal commands are needed.
 Use StudentProjectTracker.exe. In Projects > Add project, create a project,
 or use Import CSV / Excel with fixtures/updates-template.csv as the format.
 Dates are yyyy-MM-dd. Preview the import before confirming.
@@ -43,7 +46,8 @@ Exported reports are not part of a database backup.
 
 WEEKLY REPORTS
 Scheduling is optional and is not activated by installation.
-Follow docs/part-09-handover.md to choose a day/time and register the task.
+In Faculty tools > Settings / online updates, choose a day/time and click
+Enable / update weekly reports. Disable weekly reports removes the schedule.
 It runs for the installed user's account while that user is logged in.
 
 IF SOMETHING DOES NOT OPEN

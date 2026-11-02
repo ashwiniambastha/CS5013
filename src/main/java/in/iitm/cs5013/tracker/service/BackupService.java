@@ -16,6 +16,7 @@ public final class BackupService {
     private final Clock clock;
     public BackupService(Database database, Clock clock) { this.database = database; this.clock = clock; }
     public Path defaultDirectory() { return database.path().getParent().resolve("backups"); }
+    public Database database() { return database; }
 
     public Path backup(Path directory) throws IOException, SQLException {
         Path outputDirectory = directory.toAbsolutePath().normalize();

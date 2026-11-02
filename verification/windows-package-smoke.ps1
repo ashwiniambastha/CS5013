@@ -39,10 +39,12 @@ if (($history -join "`n") -notmatch 'COMPLETED') { throw 'Data was not preserved
 Invoke-PackagedTracker -ApplicationDirectory $second -CommandArgs @('restore',$backup.FullName,'--confirm')
 $active = Invoke-PackagedTracker -ApplicationDirectory $second -CommandArgs @('project-list')
 if (($active -join "`n") -notmatch 'P001' -or ($active -join "`n") -notmatch 'P002') { throw 'Restore did not recover both active projects.' }
+Set-Content -LiteralPath (Join-Path $dataDirectory 'preferences.properties') -Value 'staleDays=7' -Encoding ASCII
 & (Join-Path $second 'scripts/run-weekly-report.ps1') -DataDirectory $dataDirectory
 & (Join-Path $second 'scripts/run-weekly-report.ps1') -DataDirectory $dataDirectory
 $reports = @(Get-ChildItem -LiteralPath (Join-Path $dataDirectory 'reports') -Filter '*.txt')
 if ($reports.Count -ne 1 -or (Get-Content -LiteralPath $reports[0].FullName -Raw) -notmatch 'Student A') { throw 'Weekly report output is incorrect.' }
+if((Get-Content -LiteralPath $reports[0].FullName -Raw) -notmatch 'more than 7 days'){throw 'Weekly runner ignored the saved update threshold.'}
 [xml]$taskXml = (& (Join-Path $second 'scripts/schedule-weekly-report.ps1') -Preview | Out-String)
 $command = $taskXml.SelectSingleNode("//*[local-name()='Exec']/*[local-name()='Command']").InnerText
 $arguments = $taskXml.SelectSingleNode("//*[local-name()='Exec']/*[local-name()='Arguments']").InnerText

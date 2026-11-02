@@ -1,6 +1,7 @@
 param(
     [string]$Maven = 'mvn',
-    [ValidatePattern('^\d+\.\d+\.\d+$')][string]$Version = '1.0.0',
+    [ValidatePattern('^\d+\.\d+\.\d+$')][string]$Version = '1.1.0',
+    [string]$RuntimeImage,
     [switch]$SkipBuild
 )
 $ErrorActionPreference = 'Stop'
@@ -15,7 +16,7 @@ try {
             if ($LASTEXITCODE -ne 0) { throw 'Maven build failed.' }
         }
     }
-    $jarFile = Join-Path $repositoryRoot 'target/student-project-tracker-1.0.0.jar'
+    $jarFile = Join-Path $repositoryRoot 'target/student-project-tracker-1.1.0.jar'
     if (-not (Test-Path -LiteralPath $jarFile)) { throw 'Build the application first.' }
     $javaPath = (Get-Command java -ErrorAction Stop).Source
     $jdkBin = Split-Path $javaPath -Parent
@@ -29,8 +30,13 @@ try {
     $distributionDirectory = Join-Path $workDirectory 'distribution'
     New-Item -ItemType Directory -Path $inputDirectory -Force | Out-Null
     Copy-Item -LiteralPath $jarFile -Destination (Join-Path $inputDirectory 'tracker.jar')
-    & $jlink --add-modules 'java.se,jdk.unsupported,jdk.crypto.ec,jdk.charsets' --strip-debug --no-header-files --no-man-pages --output $runtimeDirectory
-    if ($LASTEXITCODE -ne 0) { throw 'Runtime packaging failed.' }
+    if($RuntimeImage){
+        $runtimeDirectory = (Resolve-Path -LiteralPath $RuntimeImage).Path
+        if(-not(Test-Path -LiteralPath (Join-Path $runtimeDirectory 'bin/java.exe'))){throw 'Runtime image must contain bin/java.exe.'}
+    }else{
+        & $jlink --add-modules 'java.se,jdk.unsupported,jdk.crypto.ec,jdk.charsets' --strip-debug --no-header-files --no-man-pages --output $runtimeDirectory
+        if ($LASTEXITCODE -ne 0) { throw 'Runtime packaging failed.' }
+    }
     $demoProperties = Join-Path $workDirectory 'demo.properties'
     Set-Content -LiteralPath $demoProperties -Value "arguments=demo`nwin-console=false" -Encoding ASCII
     & $jpackage --type app-image --name StudentProjectTracker --app-version $Version --vendor 'CS5013 IIT Madras' --input $inputDirectory --main-jar tracker.jar --main-class in.iitm.cs5013.tracker.TrackerApplication --arguments gui --add-launcher "TrackerDemo=$demoProperties" --runtime-image $runtimeDirectory --dest $distributionDirectory --java-options '--enable-native-access=ALL-UNNAMED'

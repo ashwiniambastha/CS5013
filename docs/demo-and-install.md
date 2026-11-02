@@ -2,7 +2,7 @@
 
 ## The package to use
 
-Use the Windows 64-bit version 1.0.0 ZIP printed by scripts/build-windows.ps1.
+Use the Windows 64-bit version 1.1.0 ZIP printed by scripts/build-windows.ps1.
 Extract the entire ZIP first. It contains two application launchers and Install.cmd.
 Read START-HERE.txt before the rehearsal. A Windows package cannot be installed
 on macOS or Linux; confirm the professor's device is Windows before copying it.

@@ -27,12 +27,12 @@ Build with `mvn package`. From the repository folder, run these PowerShell comma
 The demo directory is separate from the professor's normal application-data folder.
 
 ```powershell
-java -Dtracker.dataDir=target/part3-demo -jar target/student-project-tracker-1.0.0.jar project-add --id P001 --student "Student A" --title "Graph Theory" --start 2026-10-01
-java -Dtracker.dataDir=target/part3-demo -jar target/student-project-tracker-1.0.0.jar update-add --id U001 --project P001 --date 2026-10-07 --summary "Read the first paper" --next "Draft a proof"
-java -Dtracker.dataDir=target/part3-demo -jar target/student-project-tracker-1.0.0.jar project-list
-java -Dtracker.dataDir=target/part3-demo -jar target/student-project-tracker-1.0.0.jar update-list --project P001
-java -Dtracker.dataDir=target/part3-demo -jar target/student-project-tracker-1.0.0.jar project-complete --id P001
-java -Dtracker.dataDir=target/part3-demo -jar target/student-project-tracker-1.0.0.jar project-list --all
+java -Dtracker.dataDir=target/part3-demo -jar target/student-project-tracker-1.1.0.jar project-add --id P001 --student "Student A" --title "Graph Theory" --start 2026-10-01
+java -Dtracker.dataDir=target/part3-demo -jar target/student-project-tracker-1.1.0.jar update-add --id U001 --project P001 --date 2026-10-07 --summary "Read the first paper" --next "Draft a proof"
+java -Dtracker.dataDir=target/part3-demo -jar target/student-project-tracker-1.1.0.jar project-list
+java -Dtracker.dataDir=target/part3-demo -jar target/student-project-tracker-1.1.0.jar update-list --project P001
+java -Dtracker.dataDir=target/part3-demo -jar target/student-project-tracker-1.1.0.jar project-complete --id P001
+java -Dtracker.dataDir=target/part3-demo -jar target/student-project-tracker-1.1.0.jar project-list --all
 ```
 
 Use a fresh demo directory when repeating the initial add commands: duplicate IDs

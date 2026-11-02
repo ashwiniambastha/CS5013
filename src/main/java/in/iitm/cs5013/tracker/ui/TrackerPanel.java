@@ -40,6 +40,7 @@ public final class TrackerPanel extends JPanel {
     private final List<JTextField> inputFields = new ArrayList<>();
     private boolean busy;
     private boolean applying;
+    private final FacultyPanel faculty;
 
     public TrackerPanel(Services services) {
         this(services, DesktopDialogs.swing());
@@ -89,6 +90,8 @@ public final class TrackerPanel extends JPanel {
         tabs.addTab("Projects", projectsPanel());
         tabs.addTab("Follow-ups", followupsPanel());
         tabs.addTab("Reports", reportsPanel());
+        faculty=new FacultyPanel(services,(job,success)->submit(job::run,success),this::refresh,this::message,this::button,staleDays);
+        tabs.addTab("Faculty tools",new JScrollPane(faculty));
         add(tabs, BorderLayout.CENTER);
         messages.setRows(3);
         messages.setName("messages");
@@ -265,6 +268,7 @@ public final class TrackerPanel extends JPanel {
             fill(tasksTable, snapshot.tasks().stream().map(t -> new Object[]{t.id(),t.description(),t.dueDate(),t.completedOn()}).toList());
             fill(followupsTable, snapshot.followups().stream().map(f -> new Object[]{f.id(),f.description(),f.requestedOn(),f.dueDate(),f.resolvedOn()}).toList());
             dashboard.setText(snapshot.board()); dashboard.setCaretPosition(0);
+            faculty.showProject(snapshot.selected());
         } finally { applying = false; }
     }
 
@@ -288,6 +292,7 @@ public final class TrackerPanel extends JPanel {
     }
     private void setBusy(boolean value) {
         busy = value;
+        if(faculty!=null)faculty.setControlsEnabled(!value);
         for (var button : buttons) button.setEnabled(!value);
         for (var field : inputFields) field.setEnabled(!value);
         project.setEnabled(!value); staleDays.setEnabled(!value);

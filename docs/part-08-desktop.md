@@ -8,7 +8,7 @@ services. There is no second database or separate set of desktop deadline rules.
 From the repository directory in PowerShell, after `mvn package`:
 
 ```powershell
-$trackerJar = 'target/student-project-tracker-1.0.0.jar'
+$trackerJar = 'target/student-project-tracker-1.1.0.jar'
 java -jar $trackerJar gui
 ```
 
